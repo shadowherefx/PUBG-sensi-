@@ -11,9 +11,24 @@ body{
   font-family:Consolas,monospace;
   color:#00ff66;
   overflow-x:hidden;
-  /* Background image properly set */
   background: url('background.png') no-repeat center center fixed;
   background-size: cover;
+}
+
+/* INTRO VIDEO SCREEN */
+#intro{
+  position:fixed;
+  inset:0;
+  background: rgba(0,0,0,0.95);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+#intro video {
+  width:100%;
+  height:100%;
+  object-fit:cover;
 }
 
 /* LOGO FULL WIDTH */
@@ -58,7 +73,7 @@ button{
   color:#00ff66;
   border:1px solid rgba(0,255,102,.4);
   cursor:pointer;
-  transition:0.2s;
+  transition:0.3s;
 }
 button:hover{
   transform:scale(1.05);
@@ -73,12 +88,17 @@ button:hover{
 }
 
 .card{
-  background:rgba(0,0,0,0.25); /* transparent */
+  background:rgba(0,0,0,0.25);
   padding:15px;
   border-radius:15px;
   border:2px solid;
   border-image: linear-gradient(45deg, #00ff66, #00ffff, #ff00ff, #ff66ff) 1;
   box-shadow:0 0 20px rgba(0,255,102,0.6);
+  transition:0.4s;
+}
+.card:hover{
+  box-shadow: 0 0 25px 5px rgba(0,255,102,0.8);
+  transform: translateY(-2px);
 }
 
 .card h3{margin:0 0 8px;font-size:16px}
@@ -91,12 +111,12 @@ button:hover{
   display:none;
   align-items:center;
   justify-content:center;
-  background:rgba(0,0,0,.9);
+  background:rgba(0,0,0,0.25);
   z-index:999;
 }
 
 .popupBox{
-  background:#050505;
+  background:rgba(5,5,5,0.85);
   padding:25px;
   border-radius:15px;
   text-align:center;
@@ -116,24 +136,40 @@ button:hover{
   display:none;
   align-items:center;
   justify-content:center;
-  background:rgba(0,0,0,.95);
+  background:rgba(0,0,0,0.25);
   z-index:1000;
 }
 .aiBox{
-  background:#050505;
+  background:rgba(5,5,5,0.85);
   padding:25px;
   border-radius:15px;
   text-align:center;
   width:90%;
   max-width:360px;
+  transition:0.3s;
+}
+.aiBox:hover{
+  box-shadow:0 0 25px 5px rgba(0,255,102,0.8);
 }
 .aiBox input{
   margin-bottom:10px;
   width:80%;
+  padding:8px;
+  border-radius:8px;
+  border:1px solid rgba(0,255,102,.4);
+  background:rgba(0,0,0,0.5);
+  color:#00ff66;
 }
 </style>
 </head>
 <body>
+
+<!-- INTRO VIDEO -->
+<div id="intro">
+  <video id="introVideo" autoplay muted playsinline>
+    <source src="intro.mp4" type="video/mp4">
+  </video>
+</div>
 
 <!-- LOGO -->
 <img id="logo" src="logo.png" alt="Logo">
@@ -170,6 +206,20 @@ button:hover{
 </div>
 
 <script>
+// INTRO LOGIC
+const intro = document.getElementById("intro");
+const introVideo = document.getElementById("introVideo");
+
+if(localStorage.getItem("introShown")){
+  intro.style.display="none";
+} else {
+  intro.style.display="flex";
+  introVideo.onended = () => {
+    intro.style.display="none";
+    localStorage.setItem("introShown","true");
+  }
+}
+
 // PUBG SENSI LOGIC
 function sensi(r=4,s=64){
   let base = 130 - r*2 + s/10;
@@ -256,7 +306,6 @@ function genAI(){
   if(isNaN(r) || r <= 0){ alert("Please enter valid RAM!"); return; }
   if(isNaN(s) || s <= 0){ alert("Please enter valid Storage!"); return; }
 
-  // PUBG AI Sensitivity Logic
   let base = 130 - r*2 + s/10 + model.length%5;
   let result = `
 Camera Free Look: ${Math.round(base)}%<br>
@@ -273,6 +322,8 @@ Red Dot: ${Math.round(base-12)}%<br>
     <div class="val">${result}</div>
     <button onclick="copyS(this)">Copy</button>
   </div>`;
+  let copyBtn = aiResult.querySelector("button");
+  copyBtn.addEventListener("click",()=>{ showPopup(); });
 }
 </script>
 
